@@ -1,4 +1,4 @@
-name: Auto Publish (commit versioning)
+name: Publish
 
 on:
   push:
