@@ -1,0 +1,68 @@
+name: Auto Publish (commit versioning)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get commit message
+        id: commit
+        run: |
+          echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+
+      - name: Parse version
+        id: version
+        run: |
+          msg="${{ steps.commit.outputs.msg }}"
+
+          if [[ "$msg" =~ ^([0-9]+)([A-Z])\ -\  ]]; then
+            major="${BASH_REMATCH[1]}"
+            letter="${BASH_REMATCH[2]}"
+
+            # Convert A=0, B=1, C=2...
+            patch=$(printf "%d" "'$letter")
+            patch=$((patch - 65))
+
+            version="$major.$patch.0"
+
+            echo "version=$version" >> $GITHUB_OUTPUT
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if invalid commit
+        if: steps.version.outputs.valid != 'true'
+        run: |
+          echo "Commit message doesn't match format, skipping publish."
+          exit 0
+
+      - name: Set version in pyproject.toml
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          sed -i "s/^version = .*/version = \"$version\"/" pyproject.toml
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

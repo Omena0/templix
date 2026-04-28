@@ -1,0 +1,9 @@
+build
+src
+dist
+.vscode
+.venv
+*.pyc
+__pycache__
+config.json
+.markdownlint.json

@@ -1,0 +1,16 @@
+[project]
+name = "templix"
+version = "1.0.0"
+description = "Static HTML template engine."
+authors = [{name = "Omena0"}]
+readme = "README.md"
+dependencies = ["markdown", "bs4"]
+license = { file = "LICENSE.md" }
+requires-python = ">=3.14"
+
+[project.scripts]
+templix = "templix.__main__:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
