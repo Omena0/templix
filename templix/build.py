@@ -106,13 +106,13 @@ def url(file:str, conf:dict):
 
 def apply_template(template:str, values:dict, conf:dict) -> str:
     vars:dict[str, Any] = defaultdict(lambda: None)
-    vars.update(values)
 
     builtins = {}
     for name in dir(__builtins__):
         builtins[name] = getattr(__builtins__, name)
 
     vars.update(builtins)
+    vars.update(values)
 
     vars['include'] = lambda *args, **kwargs: include(*args, conf=conf, **kwargs)
     vars['url'] = lambda *args, **kwargs: url(*args, conf=conf, **kwargs)
