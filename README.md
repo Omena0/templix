@@ -9,7 +9,7 @@ All code is ran at build time.
 
 ## Usage
 
-Install via `pipx install templix`, then use `templix` to build.
+Install via `uv tool install templix`, then use `templix` to build.
 
 A default config file will be created with the following contents:
 
