@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-site-prefix="/">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syntax — Templix</title>
+  <meta property="og:title" content="Syntax — Templix">
+  <meta name="description" content="Syntax — Templix documentation">
+  <meta property="og:description" content="Syntax — Templix documentation">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Templix Docs">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/fonts.css" media="print" onload="this.media='all'">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" aria-hidden="true">
+        <path d="M3 12h18M3 6h18M3 18h18"/>
+      </svg>
+    </button>
+    <div class="header-brand-row">
+      <a href="index.html" class="header-brand">
+          <span class="logo">T</span>
+          Templix
+      </a>
+      <div class="version-selector-wrap">  <select id="version-selector" class="version-selector" aria-label="Select version">    {config.get("_version_options", "")}  </select></div>
+    </div>
+    <div class="header-search">
+      <svg class="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" aria-hidden="true">  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="header-search" placeholder="Search docs… (Ctrl+K)" autocomplete="off"><div id="search-results" class="search-results"></div>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html">Docs</a>
+    </nav>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+<div class="search-box">
+  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+  </svg>
+  <input type="text" id="sidebar-search" placeholder="Search docs…">
+</div>
+<div class="sidebar-section">
+  <div class="sidebar-heading collapsed" data-section="getting-started">Getting Started</div>
+  <ul class="sidebar-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="installation.html">Installation</a></li>
+    <li><a href="quickstart.html">Quickstart</a></li>
+    <li><a href="configuration.html">Configuration</a></li>
+  </ul>
+</div>
+<div class="sidebar-section">
+  <div class="sidebar-heading" data-section="guide">Guide</div>
+  <ul class="sidebar-links">
+    <li><a href="syntax.html" class="active">Syntax</a></li>
+    <li><a href="preprocessor.html">Preprocessor</a></li>
+  </ul>
+</div>
+  </aside>
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="content">
+      
+      <h1>Syntax</h1>
+<p>Normal markdown will be parsed in <code>.md</code> files.</p>
+<p>You are supposed to write reusable <code>.html</code> file templates that you then use in your <code>.md</code> files.</p>
+<h2>Python code blocks</h2>
+<p>You can use <code>{{ &lt;code&gt; }}</code> to embed the result of running python code.</p>
+<p>If the opening and closing braces are are on the same line <code>eval()</code> will be used and the block will be replaced by the evaluation result. Otherwise it will be replaced by the value of the emitted <code>result</code> variable.</p>
+<h3>Single line</h3>
+<pre><code class="language-html"><span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">title</span><span class="hl-punctuation-bracket">&gt;</span>{{ title }}<span class="hl-punctuation-bracket">&lt;/</span><span class="hl-tag">title</span><span class="hl-punctuation-bracket">&gt;</span>
+</code></pre>
+<h3>Multiline</h3>
+<pre><code class="language-html"><span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">p</span><span class="hl-punctuation-bracket">&gt;</span>
+    {{
+        result = ''
+        for i in range(25):
+            result += f'Hello, {i}\n'
+    }}
+<span class="hl-punctuation-bracket">&lt;/</span><span class="hl-tag">p</span><span class="hl-punctuation-bracket">&gt;</span>
+</code></pre>
+<h2>Special blocks</h2>
+<p>You can use <code>{% &lt;special&gt; %}</code> for <code>if</code>, <code>for</code> and <code>import</code> statements.</p>
+<p>End a block with a <code>{% end %}</code>.</p>
+<h3>If statements</h3>
+<p>If the condition is false the contents of the block is skipped. Otherwise the block will be replaced by its contents.</p>
+<pre><code class="language-html">{% if title %}
+    <span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">title</span><span class="hl-punctuation-bracket">&gt;</span>{{ title }}<span class="hl-punctuation-bracket">&lt;/</span><span class="hl-tag">title</span><span class="hl-punctuation-bracket">&gt;</span>
+{% end %}
+</code></pre>
+<h3>For statements</h3>
+<p>The block will be repeated for every element in the evaluated result.</p>
+<pre><code class="language-html">{% for page in pages %}
+    <span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">h2</span><span class="hl-punctuation-bracket">&gt;</span>{{ page.rsplit('.',1)[0].capitalize() }}<span class="hl-punctuation-bracket">&lt;/</span><span class="hl-tag">h2</span><span class="hl-punctuation-bracket">&gt;</span>
+    <span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">p</span><span class="hl-punctuation-bracket">&gt;</span>{{ open(page).read() }}<span class="hl-punctuation-bracket">&lt;/</span><span class="hl-tag">p</span><span class="hl-punctuation-bracket">&gt;</span>
+    <span class="hl-punctuation-bracket">&lt;</span><span class="hl-tag">br</span><span class="hl-punctuation-bracket">&gt;</span>
+{% end %}
+</code></pre>
+<p>Pages definition (example)</p>
+<pre><code class="language-py"><span class="hl-variable">pages</span> <span class="hl-operator">=</span> [
+    <span class="hl-string">'page1.md'</span>,
+    <span class="hl-string">'page2.md'</span>,
+    <span class="hl-string">'page3.md'</span>,
+    <span class="hl-string">'page4.md'</span>,
+    <span class="hl-string">'page5.md'</span>
+]
+</code></pre>
+<h3>Import statements</h3>
+<p>Identical to a python code block. Imports the module and stores it in vars.</p>
+<p>Automatically includes files from a folder.</p>
+<pre><code class="language-py">{<span class="hl-operator">%</span> <span class="hl-keyword">import</span> <span class="hl-variable">os</span> <span class="hl-operator">%</span>}
+{<span class="hl-operator">%</span> <span class="hl-keyword">for</span> <span class="hl-variable">i</span> <span class="hl-operator">in</span> <span class="hl-variable">os</span>.<span class="hl-property">listdir</span>(<span class="hl-string">&quot;pages&quot;</span>) <span class="hl-operator">%</span>}
+    {{ <span class="hl-function-builtin">open</span>(<span class="hl-variable">os</span>.<span class="hl-property">path</span>.<span class="hl-property">join</span>(<span class="hl-string">&quot;pages&quot;</span>, <span class="hl-variable">i</span>)).<span class="hl-property">read</span>() }}
+{<span class="hl-operator">%</span> <span class="hl-variable">end</span> <span class="hl-operator">%</span>}
+</code></pre>
+    </div>
+    <footer class="site-footer">
+      &copy; 2026 Omena0 &middot; Templix Documentation
+    </footer>
+  </main>
+
+  <!-- Back to top -->
+  <button class="back-to-top" aria-label="Back to top">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <path d="M18 15l-6-6-6 6"/>
+      </svg>
+    </button>
+
+    
+    <script id="code-refs-data" type="application/json">[]</script>
+    <script id="search-config" type="application/json">{"pages": true, "titles": true, "headings": true, "content": true, "symbols": true, "files": true}</script>
+    <script id="features-config" type="application/json">{"backlinks": true, "related": true, "auto_link": true, "versioning": true, "search": true, "code_references": true, "link_preview": true, "code_highlighting": true, "blockquotes": true, "ext_tags": true, "inline_copy": true}</script>
+    <script id="custom-tags-config" type="application/json">{"ext": {"label": "Extensions", "display": "ext", "class": "ext-tag"}}</script>
+    <script src="/script.js" defer></script>
+</body>
+</html>

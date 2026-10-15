@@ -25,11 +25,7 @@ def pretty_html(html: str) -> str:
     return soup.prettify(formatter=formatter.HTMLFormatter(indent=2))
 
 def render_markdown(markdown:str) -> str:
-    html = md.markdown(
-        markdown,
-        extensions=[tables.TableExtension()]
-    )
-    return html
+    return md.markdown(markdown, extensions=[tables.TableExtension()])
 
 def ensure_resource(filename, conf:dict):
     path = os.path.join(conf['source'], filename)
@@ -87,9 +83,10 @@ def parse_special(template:str, vars:dict, conf:dict) -> str:
                     full = ''
                     for value in cond[2]:
                         t = '\n'.join(content.splitlines()[1:-1])
-                        vars.update({cond[1]: value})
+                        vars[cond[1]] = value
                         t = apply_template(t, vars, conf)
                         full += t
+
                     template = template.replace(content, full)
 
         i += 1
@@ -107,12 +104,9 @@ def url(file:str, conf:dict):
 def apply_template(template:str, values:dict, conf:dict) -> str:
     vars:dict[str, Any] = defaultdict(lambda: None)
 
-    builtins = {}
-    for name in dir(__builtins__):
-        builtins[name] = getattr(__builtins__, name)
+    builtins = {name: getattr(__builtins__, name) for name in dir(__builtins__)}
 
-    vars.update(builtins)
-    vars.update(values)
+    vars |= builtins | values
 
     vars['include'] = lambda *args, **kwargs: include(*args, conf=conf, **kwargs)
     vars['url'] = lambda *args, **kwargs: url(*args, conf=conf, **kwargs)
@@ -158,7 +152,7 @@ def apply_template(template:str, values:dict, conf:dict) -> str:
             result = eval(content, vars)
 
         if key not in template:
-            raise TemplateError(f'Key not found in template.')
+            raise TemplateError('Key not found in template.')
 
         if key == result:
             raise TemplateError('Key cannot be equal to result.')
@@ -208,13 +202,12 @@ def preprocess(source, config):
                 raise TemplateError(f'Invalid syntax: {line}') from e
             values[key] = value
 
-        else:
-            if include_file:
-                content += include(include_file, conf=config, **values)
-                include_file = ""
+        elif include_file:
+            content += include(include_file, conf=config, **values)
+            include_file = ""
 
-            else:
-                content += line+'\n'
+        else:
+            content += line+'\n'
 
     if include_file:
         content += include(include_file, conf=config, **values)
@@ -237,9 +230,7 @@ def get_page(source:str, conf:dict[str,str]) -> str:
 
     html = apply_template(template, values, conf)
 
-    result = '\n'.join(line.rstrip() for line in html.splitlines() if line)
-
-    return result
+    return '\n'.join(line.rstrip() for line in html.splitlines() if line)
 
 def generate(conf:dict):
     src_dir:str = conf['source']
@@ -254,6 +245,6 @@ def generate(conf:dict):
         html = get_page(source, conf)
         html = pretty_html(html)
 
-        out_path = os.path.join(out_dir, os.path.splitext(file)[0])+'.html'
+        out_path = f'{os.path.join(out_dir, os.path.splitext(file)[0])}.html'
         with open(out_path, 'w') as f:
             f.write(html)
